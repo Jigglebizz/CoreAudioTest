@@ -1,0 +1,8 @@
+#pragma once
+
+#define NOMINMAX
+
+// Windows drivers includes
+#include <winerror.h>
+#include <mmdeviceapi.h>
+#include <functiondiscoverykeys_devpkey.h>
