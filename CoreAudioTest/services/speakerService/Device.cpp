@@ -5,17 +5,17 @@ using namespace speakerService;
 
 uint64_t Device::idCounter = 0;
 
-Device::Device()
+Device::Device() noexcept
     : name(L"Unknown"), winDevice(NULL)
 {}
 
 Device::Device( const std::wstring& Name,
                 const std::wstring& Uid,
-                IMMDevice *pDevice )
+                IMMDevice *pDevice ) noexcept
     : name(Name), uid(Uid), winDevice(pDevice)
 {}
 
-Device::Device( Device&& Other) :
+Device::Device( Device&& Other) noexcept :
     name( Other.name), 
     uid( Other.uid),
     appId( Other.appId),
@@ -27,7 +27,7 @@ Device::Device( Device&& Other) :
     Other.uid = L"";
 }
 
-Device::Device(IMMDevice *pDevice) 
+Device::Device(IMMDevice *pDevice) noexcept
   : name(L"Unknown"), winDevice(NULL)
 {
     HRESULT hr = S_OK;

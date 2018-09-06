@@ -19,20 +19,19 @@ private:
     // This will help keep initialize/teardown simple
     std::unordered_map< std::type_index, std::unique_ptr<AbstractService>> mServices;
 public:
-    // Very basic template programming. The function provides a 
+    // Basic template programming. The function provides a 
     // simple-to-use interface and enforces strong typing
-    // of services, as opposed to looking up a void* or other more
-    // C-style technique
+    // when working with services, as opposed to looking
+    // up a void* or other more C-style technique
     template<typename T>
     T* const GetService() noexcept {
         return dynamic_cast<T*>(mServices.at(typeid(T)).get());
     }
 
-    // No "Add Service" function is intentional.
+    // Absence of "Add Service" function is intentional.
     // This function enforces that all services have the 
     // same constructor, which should ensure a guaranteed
-    // atomic/modular set of services. 
-    // 
+    // atomic/modular set of services.
     template<typename T>
     void InitializeService() {
         mServices[typeid(T)] = std::make_unique<T>( *this);

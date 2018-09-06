@@ -14,13 +14,15 @@ namespace speakerService {
         uint64_t appId;
         IMMDevice* winDevice;
 
-        Device();
-        Device(Device&& Other);
+        Device() noexcept;
+        Device(Device&& Other) noexcept;
+        Device(const Device& Other) = delete; // It is wise not to copy winDevice
+
         Device( const std::wstring& Name,
                 const std::wstring& Uid,
-                IMMDevice *pDevice);
+                IMMDevice *pDevice) noexcept;
 
-        Device(IMMDevice *pDevice);
+        Device(IMMDevice *pDevice) noexcept;
 
         ~Device();
     };
