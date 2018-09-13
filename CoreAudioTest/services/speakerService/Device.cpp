@@ -2,15 +2,21 @@
 #include "Device.h"
 
 using namespace speakerService;
+using namespace std::chrono_literals;
 
 uint64_t Device::idCounter = 0;
+const std::chrono::milliseconds Device::cDefaultLatency = 3ms;
 
 Device::Device() noexcept
     : mName(L"Unknown"),
       mUid(L""),
       mWinDevice(NULL),
       mBufferSize( cDefaultBufferSize), 
-      mSampleRate( cDefaultSampleRate)
+      mSampleRate( cDefaultSampleRate),
+      mLatency( cDefaultLatency),
+      mRenderClient( NULL),
+      mAudioClient( NULL),
+      mOpened(false)
 {}
 
 
@@ -20,16 +26,31 @@ Device::Device( Device&& Other) noexcept :
     mAppId( Other.mAppId),
     mWinDevice( Other.mWinDevice),
     mBufferSize( Other.mBufferSize),
-    mSampleRate( Other.mSampleRate)
+    mSampleRate( Other.mSampleRate),
+    mLatency( Other.mLatency),
+    mOpened( Other.mOpened),
+    mRenderClient( Other.mRenderClient),
+    mAudioClient( Other.mAudioClient)
 {
     Other.mWinDevice = NULL;
+    Other.mRenderClient = NULL;
+    Other.mAudioClient = NULL;
     Other.mName = L"Unknown";
     Other.mAppId = std::numeric_limits<uint64_t>::max();
     Other.mUid = L"";
+    Other.mOpened = false;
 }
 
 Device::Device(IMMDevice *pDevice) noexcept
-  : mName(L"Unknown"), mWinDevice(NULL), mUid( L"")
+  : mName(L"Unknown"), 
+    mWinDevice(NULL),
+    mRenderClient(NULL),
+    mAudioClient(NULL),
+    mUid( L""),
+    mBufferSize(cDefaultBufferSize),
+    mSampleRate(cDefaultSampleRate),
+    mLatency(cDefaultLatency),
+    mOpened( false)
 {
     HRESULT hr = S_OK;
     LPWSTR pwszID = NULL;
@@ -72,14 +93,101 @@ Device::Device(IMMDevice *pDevice) noexcept
 }
 
 Device::~Device() {
+    if (mRenderClient != NULL) {
+        mRenderClient->Release();
+    }
+    if (mAudioClient != NULL) {
+        mAudioClient->Release();
+    }
     if (mWinDevice != NULL) {
         mWinDevice->Release();
     }
 }
 
+#pragma region
+// This region is mostly boilerplate from
+// https://docs.microsoft.com/en-us/windows/desktop/CoreAudio/rendering-a-stream
+
+void Device::Open() {
+    assert( !mOpened && "Device already opened");
+
+    HRESULT hr;
+    REFERENCE_TIME hnsRequestedDuration = 
+        static_cast<double>(WinDrivers::REFTIMES_PER_MS) * 
+        static_cast<double>(mLatency.count());
+    WAVEFORMATEX *pwfx = NULL;
+
+    try {
+        hr = mWinDevice->Activate( 
+                            WinDrivers::IID_IAudioClient, CLSCTX_ALL,
+                            NULL, (void**)&mAudioClient);
+        if (FAILED(hr))
+            throw std::runtime_error("Could not activate device");
+
+        hr = mAudioClient->GetMixFormat(&pwfx);
+        if (FAILED(hr))
+            throw std::runtime_error("Could not get mix format");
+
+        hr = mAudioClient->Initialize(
+            AUDCLNT_SHAREMODE_SHARED,
+            NULL, hnsRequestedDuration, 0, pwfx, NULL);
+
+        if (FAILED(hr))
+            throw std::runtime_error("Could not initialize device");
+
+        hr = mAudioClient->GetBufferSize(&mBufferSize);
+        if (FAILED(hr))
+            throw std::runtime_error("Could not get buffer size");
+
+        hr = mAudioClient->GetService(
+            IID_IAudioRenderClient,
+            (void**)&mRenderClient);
+        if (FAILED(hr))
+            throw std::runtime_error("Could not get render client");
+
+        hr = mAudioClient->Start();
+        if (FAILED(hr))
+            throw std::runtime_error("Could not start audio client");
+    }
+    catch ( const std::runtime_error& e) {
+        CoTaskMemFree(pwfx);
+        SAFE_RELEASE(mAudioClient);
+        SAFE_RELEASE(mRenderClient);
+        throw;
+    }
+    CoTaskMemFree(pwfx);
+}
+
 void
-Device::Render( const AudioBuffer<uint32_t>& Buf) {
+Device::Close() {
+    assert(mOpened && "Can not close unopened device");
+
+    mAudioClient->Stop();
+    SAFE_RELEASE(mAudioClient);
+    mAudioClient = NULL;
+    SAFE_RELEASE(mRenderClient);
+    mRenderClient = NULL;
+}
+
+void
+Device::Render( const AudioBuffer& Buf) {
+    assert(mOpened && "Device must be opened first");
+    BYTE* pBuf;
+
     HRESULT hr;
     //REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
     REFERENCE_TIME hnsActualDuration;
+    DWORD flags = 0;
+
+    try {
+        hr = mRenderClient->GetBuffer(mBufferSize, &pBuf);
+        pBuf = Buf.getBuffer();
+        hr = mRenderClient->ReleaseBuffer(mBufferSize, flags);
+    }
+    catch ( const std::runtime_error& e) {
+        Close();
+        throw;
+    }
 }
+
+#pragma endregion

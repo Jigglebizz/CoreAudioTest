@@ -7,3 +7,8 @@
 #include <mmdeviceapi.h>
 #include <functiondiscoverykeys_devpkey.h>
 #include <Audioclient.h>
+#include <cassert>
+#include <chrono>
+#include <vector>
+#include <string>
+#include <memory>
