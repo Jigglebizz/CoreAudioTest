@@ -1,7 +1,7 @@
 #include <stdafx.h>
 #include "SpeakerService.h"
 
-#include "WinDriverUtils/common.h"
+#include "core/WinDrivers.h"
 
 using namespace speakerService;
 
@@ -17,8 +17,8 @@ SpeakerService::SpeakerService( Context& C)
         throw std::runtime_error("Could not initialize Windows audio drivers!");
 
     hr = CoCreateInstance(
-        CLSID_MMDeviceEnumerator, NULL,
-        CLSCTX_ALL, IID_IMMDeviceEnumerator,
+        WinDrivers::CLSID_MMDeviceEnumerator, NULL,
+        CLSCTX_ALL, WinDrivers::IID_IMMDeviceEnumerator,
         (void**)&mEnumerator
     );
     if (FAILED(hr))

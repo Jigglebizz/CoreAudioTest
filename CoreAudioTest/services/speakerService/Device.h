@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "WinDriverUtils/common.h"
+#include "core/WinDrivers.h"
 #include "core/AudioBuffer.h"
 
 namespace speakerService {
