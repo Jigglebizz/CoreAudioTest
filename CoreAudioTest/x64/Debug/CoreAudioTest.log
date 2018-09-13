@@ -1,7 +1,0 @@
-﻿  Application.cpp
-  SpeakerService.cpp
-  Device.cpp
-c:\users\rustm\source\repos\coreaudiotest\coreaudiotest\services\speakerservice\device.cpp(84): warning C4101: 'hnsActualDuration': unreferenced local variable
-c:\users\rustm\source\repos\coreaudiotest\coreaudiotest\services\speakerservice\device.cpp(82): warning C4101: 'hr': unreferenced local variable
-  Generating Code...
-  CoreAudioTest.vcxproj -> C:\Users\rustm\source\repos\CoreAudioTest\x64\Debug\CoreAudioTest.exe
