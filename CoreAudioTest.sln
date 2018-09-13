@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CoreAudioTest", "CoreAudioTest\CoreAudioTest.vcxproj", "{59EF4BD3-3927-4D43-9DC5-B7E4C2D353AE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioProgramUnitTests", "AudioProgramUnitTests\AudioProgramUnitTests.vcxproj", "{967FE486-9A35-41A9-8AB3-804468ED3303}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,19 @@ Global
 		{59EF4BD3-3927-4D43-9DC5-B7E4C2D353AE}.Release|x64.Build.0 = Release|x64
 		{59EF4BD3-3927-4D43-9DC5-B7E4C2D353AE}.Release|x86.ActiveCfg = Release|Win32
 		{59EF4BD3-3927-4D43-9DC5-B7E4C2D353AE}.Release|x86.Build.0 = Release|Win32
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Debug|x64.ActiveCfg = Debug|x64
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Debug|x64.Build.0 = Debug|x64
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Debug|x86.ActiveCfg = Debug|Win32
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Debug|x86.Build.0 = Debug|Win32
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Release|x64.ActiveCfg = Release|x64
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Release|x64.Build.0 = Release|x64
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Release|x86.ActiveCfg = Release|Win32
+		{967FE486-9A35-41A9-8AB3-804468ED3303}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED41C793-490E-48E7-825C-E05520884EEB}
 	EndGlobalSection
 EndGlobal

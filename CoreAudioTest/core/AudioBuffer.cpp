@@ -1,23 +1,27 @@
 #include <stdafx.h>
 #include "AudioBuffer.h"
 
-AudioBuffer::AudioBuffer( size_t Size) {
-    mBufImpl.reserve(Size);
+AudioBuffer::AudioBuffer( size_t Size)
+    : mBufImpl( Size, 0)
+{}
+
+size_t
+AudioBuffer::size() const noexcept {
+    return mBufImpl.size();
+}
+
+double
+AudioBuffer::peekSample( size_t Index) const {
+    if (Index >= mBufImpl.capacity())
+        throw std::out_of_range("Index out of buffer range");
+
+    return mBufImpl.at(Index);
 }
 
 void
-AudioBuffer::addSample( const double& value) {
-    if (mBufImpl.size() != mBufImpl.capacity())
-        throw std::overflow_error("Buffer overrun");
+AudioBuffer::pokeSample( size_t Index, double Value) {
+    if (Index >= mBufImpl.capacity())
+        throw std::out_of_range("Index out of buffer range");
 
-    mBufImpl.push_back(value);
-}
-
-void
-AudioBuffer::getBuffer(BYTE** Buf) const noexcept {
-    for ( int i = 0; i < mBufImpl.capacity(); ++i) {
-        (*Buf)[i] = (i < mBufImpl.size()) ? 
-            static_cast<BYTE>(mBufImpl[i] * 127.0 + 127.0) : 
-            0;
-    }
+    mBufImpl[Index] = Value;
 }

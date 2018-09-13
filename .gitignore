@@ -5,3 +5,9 @@
 *.ilk
 *.pdb
 *.pch
+*.filters
+*.user
+*.idb
+*.dll
+*.lib
+*.exp

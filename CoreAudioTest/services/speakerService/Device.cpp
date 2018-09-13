@@ -112,9 +112,9 @@ void Device::Open() {
     assert( !mOpened && "Device already opened");
 
     HRESULT hr;
-    REFERENCE_TIME hnsRequestedDuration = 
+    REFERENCE_TIME hnsRequestedDuration = static_cast<REFERENCE_TIME>(
         static_cast<double>(WinDrivers::REFTIMES_PER_MS) * 
-        static_cast<double>(mLatency.count());
+        static_cast<double>(mLatency.count()));
     WAVEFORMATEX *pwfx = NULL;
 
     try {
@@ -140,7 +140,7 @@ void Device::Open() {
             throw std::runtime_error("Could not get buffer size");
 
         hr = mAudioClient->GetService(
-            IID_IAudioRenderClient,
+            WinDrivers::IID_IAudioRenderClient,
             (void**)&mRenderClient);
         if (FAILED(hr))
             throw std::runtime_error("Could not get render client");
@@ -149,7 +149,7 @@ void Device::Open() {
         if (FAILED(hr))
             throw std::runtime_error("Could not start audio client");
     }
-    catch ( const std::runtime_error& e) {
+    catch ( const std::runtime_error&) {
         CoTaskMemFree(pwfx);
         SAFE_RELEASE(mAudioClient);
         SAFE_RELEASE(mRenderClient);
@@ -175,16 +175,15 @@ Device::Render( const AudioBuffer& Buf) {
     BYTE* pBuf;
 
     HRESULT hr;
-    //REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
     REFERENCE_TIME hnsActualDuration;
     DWORD flags = 0;
 
     try {
         hr = mRenderClient->GetBuffer(mBufferSize, &pBuf);
-        pBuf = Buf.getBuffer();
+        Buf.getBuffer<BYTE>( &pBuf);
         hr = mRenderClient->ReleaseBuffer(mBufferSize, flags);
     }
-    catch ( const std::runtime_error& e) {
+    catch ( const std::runtime_error&) {
         Close();
         throw;
     }
