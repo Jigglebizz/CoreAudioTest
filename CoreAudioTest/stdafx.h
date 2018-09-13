@@ -6,3 +6,4 @@
 #include <winerror.h>
 #include <mmdeviceapi.h>
 #include <functiondiscoverykeys_devpkey.h>
+#include <Audioclient.h>

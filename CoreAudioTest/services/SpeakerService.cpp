@@ -16,9 +16,6 @@ SpeakerService::SpeakerService( Context& C)
     if (FAILED(hr))
         throw std::runtime_error("Could not initialize Windows audio drivers!");
 
-    const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-    const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
-
     hr = CoCreateInstance(
         CLSID_MMDeviceEnumerator, NULL,
         CLSCTX_ALL, IID_IMMDeviceEnumerator,

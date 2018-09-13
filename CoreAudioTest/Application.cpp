@@ -28,11 +28,13 @@ Application::Initialize() {
     auto devices = mContext.GetService<SpeakerService>()->GetDevices();
 
     for (auto& dev : devices) {
-        std::wcout << dev.uid << " ... " << dev.name << std::endl;
+        std::wcout << dev.getUid() << " ... " << dev.getName() << std::endl;
     }
 
     auto defaultDevice = mContext.GetService<SpeakerService>()->GetDefaultDevice();
-    std::wcout << std::endl << "Default device is: " << defaultDevice.uid << " ... " << defaultDevice.name << std::endl;
+    std::wcout << std::endl << "Default device is: " 
+               << defaultDevice.getUid() << " ... " 
+               << defaultDevice.getName() << std::endl;
 }
 
 void

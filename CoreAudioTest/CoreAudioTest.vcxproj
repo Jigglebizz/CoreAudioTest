@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="core\AudioBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="services\SpeakerService.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -143,6 +144,8 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="AppObject.h" />
     <ClInclude Include="Context.h" />
+    <ClInclude Include="core\AudioBuffer.h" />
+    <ClInclude Include="core\Globals.h" />
     <ClInclude Include="services\AbstractService.h" />
     <ClInclude Include="services\SpeakerService.h" />
     <ClInclude Include="services\speakerService\Device.h" />

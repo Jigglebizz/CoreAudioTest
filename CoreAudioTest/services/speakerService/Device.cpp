@@ -6,29 +6,30 @@ using namespace speakerService;
 uint64_t Device::idCounter = 0;
 
 Device::Device() noexcept
-    : name(L"Unknown"), winDevice(NULL)
+    : mName(L"Unknown"),
+      mUid(L""),
+      mWinDevice(NULL),
+      mBufferSize( cDefaultBufferSize), 
+      mSampleRate( cDefaultSampleRate)
 {}
 
-Device::Device( const std::wstring& Name,
-                const std::wstring& Uid,
-                IMMDevice *pDevice ) noexcept
-    : name(Name), uid(Uid), winDevice(pDevice)
-{}
 
 Device::Device( Device&& Other) noexcept :
-    name( Other.name), 
-    uid( Other.uid),
-    appId( Other.appId),
-    winDevice( Other.winDevice)
+    mName( Other.mName), 
+    mUid( Other.mUid),
+    mAppId( Other.mAppId),
+    mWinDevice( Other.mWinDevice),
+    mBufferSize( Other.mBufferSize),
+    mSampleRate( Other.mSampleRate)
 {
-    Other.winDevice = NULL;
-    Other.name = L"Unknown";
-    Other.appId = std::numeric_limits<uint64_t>::max();
-    Other.uid = L"";
+    Other.mWinDevice = NULL;
+    Other.mName = L"Unknown";
+    Other.mAppId = std::numeric_limits<uint64_t>::max();
+    Other.mUid = L"";
 }
 
 Device::Device(IMMDevice *pDevice) noexcept
-  : name(L"Unknown"), winDevice(NULL)
+  : mName(L"Unknown"), mWinDevice(NULL), mUid( L"")
 {
     HRESULT hr = S_OK;
     LPWSTR pwszID = NULL;
@@ -38,23 +39,23 @@ Device::Device(IMMDevice *pDevice) noexcept
         hr = pDevice->GetId(&pwszID);
         if (FAILED(hr))
             throw std::runtime_error("Could not get device ID of " +
-            (appId == -1) ? "default device" : "device #" + std::to_string(appId));
+            (mAppId == -1) ? "default device" : "device #" + std::to_string(mAppId));
 
         hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
         if (FAILED(hr))
             throw std::runtime_error("Could not open property store for " +
-            (idCounter == -1) ? "default device" : "device #" + std::to_string(appId));
+            (idCounter == -1) ? "default device" : "device #" + std::to_string(mAppId));
 
         PROPVARIANT varName;
         PropVariantInit(&varName);
         hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
         if (FAILED(hr))
             throw std::runtime_error("Failed to get property 'Friendly Name' for " +
-            (appId == -1) ? "default device" : "device #" + std::to_string(appId));
+            (mAppId == -1) ? "default device" : "device #" + std::to_string(mAppId));
 
-        name = varName.pwszVal;
-        uid = pwszID;
-        winDevice = pDevice;
+        mName = varName.pwszVal;
+        mUid = pwszID;
+        mWinDevice = pDevice;
 
         CoTaskMemFree(pwszID);
         pwszID = NULL;
@@ -67,11 +68,18 @@ Device::Device(IMMDevice *pDevice) noexcept
         SAFE_RELEASE(pProps);
     }
 
-    appId = idCounter++;
+    mAppId = idCounter++;
 }
 
 Device::~Device() {
-    if (winDevice != NULL) {
-        winDevice->Release();
+    if (mWinDevice != NULL) {
+        mWinDevice->Release();
     }
+}
+
+void
+Device::Render( const AudioBuffer<uint32_t>& Buf) {
+    HRESULT hr;
+    //REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
+    REFERENCE_TIME hnsActualDuration;
 }

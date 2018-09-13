@@ -8,6 +8,9 @@
 /**
  * What's your context?
  * This is how I'm handling depencency injection
+ *
+ * Dependencies are abstracted as 'services' that can be
+ * accessed through the Context
  */
 class Context {
 private:
