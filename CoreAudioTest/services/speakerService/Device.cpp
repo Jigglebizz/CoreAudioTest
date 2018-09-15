@@ -98,6 +98,9 @@ Device::Device(IMMDevice *pDevice) noexcept
 }
 
 Device::~Device() {
+    if (mOpened)
+        close();
+
     if (mRenderClient != NULL) {
         mRenderClient->Release();
     }
@@ -113,7 +116,7 @@ Device::~Device() {
 // This region is mostly boilerplate from
 // https://docs.microsoft.com/en-us/windows/desktop/CoreAudio/rendering-a-stream
 
-void Device::Open() {
+void Device::open() {
     assert( !mOpened && "Device already opened");
 
     HRESULT hr;
@@ -159,6 +162,8 @@ void Device::Open() {
             throw std::runtime_error("Could not start audio client");
 
         mOpened = true;
+        mCloseRequested = false;
+        mRenderingThread = std::thread( &Device::render, this);
     }
     catch ( const std::runtime_error&) {
         CoTaskMemFree(pwfx);
@@ -170,8 +175,14 @@ void Device::Open() {
 }
 
 void
-Device::Close() {
+Device::close() {
     assert(mOpened && "Can not close unopened device");
+
+    mCloseRequested = true;
+    if (mRenderingThread.joinable())
+        mRenderingThread.join();
+
+    while (!mRenderThreadClosed) {}
 
     mAudioClient->Stop();
     SAFE_RELEASE(mAudioClient);
@@ -183,28 +194,64 @@ Device::Close() {
 }
 
 void
-Device::Render( const AudioBuffer& Buf) {
+Device::render() noexcept {
     assert(mOpened && "Device must be opened first");
     BYTE* pBuf;
+    float** fBuf = (float**)malloc( mNumChannels * sizeof(float*));
+    for (unsigned i = 0; i < mNumChannels; ++i) {
+        fBuf[i] = (float*)malloc(mBufferSize * sizeof(float));
+    }
+
+    mRenderThreadClosed = false;
 
     HRESULT hr;
-    REFERENCE_TIME hnsActualDuration;
+    REFERENCE_TIME hnsActualDuration = 
+        (double)WinDrivers::REFTIMES_PER_SEC *
+        mBufferSize / mSampleRate;
     DWORD flags = 0;
 
-    try {
-        hr = mRenderClient->GetBuffer(mBufferSize, &pBuf);
-        Buf.getBuffer<BYTE>( &pBuf);
-        hr = mRenderClient->ReleaseBuffer(mBufferSize, flags);
+    UINT32 numFramesAvailable;
+    UINT32 numFramesPadding;
+
+    LPVOID pvReserved = NULL;
+    hr = CoInitializeEx(pvReserved, COINIT_MULTITHREADED | COINIT_SPEED_OVER_MEMORY);
+
+    while (!mCloseRequested) {
+        try {
+            std::this_thread::sleep_for( 
+                std::chrono::milliseconds(
+                    hnsActualDuration / WinDrivers::REFTIMES_PER_MS / 2
+                )
+            );
+
+            hr = mAudioClient->GetCurrentPadding(&numFramesPadding);
+            if FAILED(hr)
+                throw std::runtime_error("Error getting padding");
+
+            numFramesAvailable = mBufferSize - numFramesPadding;
+
+            hr = mRenderClient->GetBuffer(mBufferSize, &pBuf);
+            if FAILED(hr)
+                throw std::runtime_error("Error getting render buffer");
+
+            mRenderingChain.render(fBuf, mNumChannels, numFramesAvailable);
+            floatToWinBuf(fBuf, pBuf);
+
+            hr = mRenderClient->ReleaseBuffer(mBufferSize, flags);
+            if (FAILED(hr))
+                throw std::runtime_error("Error releasing render buffer");
+        }
+        catch (const std::runtime_error&) {
+            close();
+        }
     }
-    catch ( const std::runtime_error&) {
-        Close();
-        throw;
-    }
+
+    mRenderThreadClosed = true;
 }
 
 #pragma endregion
 
 void
-Device::PlayTestTone(const std::chrono::nanoseconds Duration) {
-    
+Device::floatToWinBuf( float** FloatBuf, BYTE* WinBuf) const noexcept {
+
 }

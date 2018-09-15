@@ -13,3 +13,5 @@
 #include <string>
 #include <memory>
 #include <set>
+#include <thread>
+#include <atomic>

@@ -3,10 +3,10 @@
 #include "core/WinDrivers.h"
 #include "core/AudioBuffer.h"
 
+#include "objectModel/RenderingChain.h"
+
 namespace speakerService {
-    // The device is used to stream to an audio endpoint
-    // It has a simple interface but it must be used in 
-    // a specific way
+    // The device renders audio to an endpoint
     class Device {
     private:
         static uint64_t idCounter;
@@ -29,7 +29,13 @@ namespace speakerService {
         std::chrono::milliseconds mLatency;
 
         bool mOpened;
+        objectModel::RenderingChain mRenderingChain;
 
+        std::thread mRenderingThread;
+        std::atomic_bool mCloseRequested;
+        std::atomic_bool mRenderThreadClosed;
+        void render() noexcept;
+        inline void floatToWinBuf( float** FloatBuf, BYTE* WinBuf) const noexcept;
     public:
         Device() noexcept;
         Device(Device&& Other) noexcept;
@@ -70,10 +76,14 @@ namespace speakerService {
             mLatency = latency;
         }
 
-        void Open();
-        void Close();
-        void Render( const AudioBuffer& Buf);
+        objectModel::RenderingChain& getChain() noexcept {
+            return mRenderingChain;
+        }
 
-        void PlayTestTone(const std::chrono::nanoseconds Duration);
+        void open();
+        void close();
+        //void Render( const AudioBuffer& Buf);
+
+        //void PlayTestTone(const std::chrono::nanoseconds Duration);
     };
 }

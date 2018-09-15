@@ -38,7 +38,7 @@ Application::Initialize() {
 
     defaultDevice.setLatency(1ms);
 
-    defaultDevice.Open();
+    defaultDevice.open();
 
     std::wcout << "Sample rate: " << defaultDevice.getSampleRate() << std::endl;
     std::wcout << "Buffer size: " << defaultDevice.getBufferSize() << std::endl;
@@ -51,7 +51,7 @@ Application::Initialize() {
                   1000.0 * (float)defaultDevice.getBufferSize() / 
                   (float)defaultDevice.getSampleRate() << "ms" << std::endl;
 
-    defaultDevice.Close();
+    defaultDevice.close();
 }
 
 void
