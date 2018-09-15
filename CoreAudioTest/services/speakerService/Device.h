@@ -12,6 +12,7 @@ namespace speakerService {
         static uint64_t idCounter;
         static constexpr uint32_t cDefaultBufferSize = 1024;
         static constexpr uint32_t cDefaultSampleRate = 44'100;
+        static constexpr uint32_t cDefaultBitsPerSample = 8;
         static const std::chrono::milliseconds cDefaultLatency;
 
         std::wstring mName;
@@ -19,6 +20,8 @@ namespace speakerService {
         uint64_t mAppId;
         uint32_t mBufferSize;
         uint32_t mSampleRate;
+        uint32_t mBitsPerSample;
+        unsigned mNumChannels;
         IMMDevice* mWinDevice;
         IAudioRenderClient *mRenderClient;
         IAudioClient *mAudioClient;
@@ -55,6 +58,11 @@ namespace speakerService {
                 "Cannot get sample rate of device until it is opened");
             return mSampleRate;
         }
+        const unsigned getNumChannels() const noexcept {
+            assert(mOpened &&
+                "Cannot get number of channels of a device until it is opened");
+            return mNumChannels;
+        }
         const std::chrono::milliseconds getLatency() const noexcept {
             return mLatency;
         }
@@ -65,5 +73,7 @@ namespace speakerService {
         void Open();
         void Close();
         void Render( const AudioBuffer& Buf);
+
+        void PlayTestTone(const std::chrono::nanoseconds Duration);
     };
 }

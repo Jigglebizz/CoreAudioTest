@@ -35,6 +35,23 @@ Application::Initialize() {
     std::wcout << std::endl << "Default device is: " 
                << defaultDevice.getUid() << " ... " 
                << defaultDevice.getName() << std::endl;
+
+    defaultDevice.setLatency(1ms);
+
+    defaultDevice.Open();
+
+    std::wcout << "Sample rate: " << defaultDevice.getSampleRate() << std::endl;
+    std::wcout << "Buffer size: " << defaultDevice.getBufferSize() << std::endl;
+    if (defaultDevice.getNumChannels() == 1)
+        std::wcout << "Mono" << std::endl;
+    else if (defaultDevice.getNumChannels() == 2)
+        std::wcout << "Stereo" << std::endl;
+
+    std::wcout << "Buffer latency: " << 
+                  1000.0 * (float)defaultDevice.getBufferSize() / 
+                  (float)defaultDevice.getSampleRate() << "ms" << std::endl;
+
+    defaultDevice.Close();
 }
 
 void

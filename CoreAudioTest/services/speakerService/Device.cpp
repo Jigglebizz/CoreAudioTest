@@ -13,6 +13,8 @@ Device::Device() noexcept
       mWinDevice(NULL),
       mBufferSize( cDefaultBufferSize), 
       mSampleRate( cDefaultSampleRate),
+      mBitsPerSample( cDefaultBitsPerSample),
+      mNumChannels( 1),
       mLatency( cDefaultLatency),
       mRenderClient( NULL),
       mAudioClient( NULL),
@@ -27,6 +29,8 @@ Device::Device( Device&& Other) noexcept :
     mWinDevice( Other.mWinDevice),
     mBufferSize( Other.mBufferSize),
     mSampleRate( Other.mSampleRate),
+    mBitsPerSample( Other.mBitsPerSample),
+    mNumChannels( Other.mNumChannels),
     mLatency( Other.mLatency),
     mOpened( Other.mOpened),
     mRenderClient( Other.mRenderClient),
@@ -49,6 +53,7 @@ Device::Device(IMMDevice *pDevice) noexcept
     mUid( L""),
     mBufferSize(cDefaultBufferSize),
     mSampleRate(cDefaultSampleRate),
+    mBitsPerSample(cDefaultBitsPerSample),
     mLatency(cDefaultLatency),
     mOpened( false)
 {
@@ -128,6 +133,10 @@ void Device::Open() {
         if (FAILED(hr))
             throw std::runtime_error("Could not get mix format");
 
+        mSampleRate = pwfx->nSamplesPerSec;
+        mBitsPerSample = pwfx->wBitsPerSample;
+        mNumChannels = pwfx->nChannels;
+
         hr = mAudioClient->Initialize(
             AUDCLNT_SHAREMODE_SHARED,
             NULL, hnsRequestedDuration, 0, pwfx, NULL);
@@ -148,6 +157,8 @@ void Device::Open() {
         hr = mAudioClient->Start();
         if (FAILED(hr))
             throw std::runtime_error("Could not start audio client");
+
+        mOpened = true;
     }
     catch ( const std::runtime_error&) {
         CoTaskMemFree(pwfx);
@@ -167,6 +178,8 @@ Device::Close() {
     mAudioClient = NULL;
     SAFE_RELEASE(mRenderClient);
     mRenderClient = NULL;
+
+    mOpened = false;
 }
 
 void
@@ -190,3 +203,8 @@ Device::Render( const AudioBuffer& Buf) {
 }
 
 #pragma endregion
+
+void
+Device::PlayTestTone(const std::chrono::nanoseconds Duration) {
+    
+}

@@ -10,7 +10,6 @@ namespace AudioProgramUnitTests
 	TEST_CLASS(AudioBufferTests)
 	{
 	public:
-		
 		TEST_METHOD(InitializeEmpty) {
             AudioBuffer buf(256);
             BYTE* outputBuf = (BYTE*)malloc(256);
