@@ -1,13 +1,14 @@
 #pragma once
 
-#include <thread>
-
 #include "Context.h"
+#include "services/speakerService/Device.h"
 
 class Application {
 private:
     bool mExitRequested;
     Context mContext;
+
+    speakerService::Device mDevice;
 
     void Initialize();
     void Loop();

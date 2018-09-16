@@ -19,7 +19,8 @@ namespace AudioProgramUnitTests
 
         void render(float** Buffer,
             size_t NumChannels,
-            size_t Length) noexcept override
+            size_t Length,
+            const speakerService::Device& Dev) noexcept override
         {
             for (size_t c = 0; c < NumChannels; ++c) {
                 for (size_t p = 0; p < Length; ++p) {

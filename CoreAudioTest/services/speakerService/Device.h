@@ -3,16 +3,21 @@
 #include "core/WinDrivers.h"
 #include "core/AudioBuffer.h"
 
-#include "objectModel/RenderingChain.h"
+namespace objectModel {
+    class RenderingChain;
+}
 
 namespace speakerService {
-    // The device renders audio to an endpoint
+    // The device renders audio to an endpoint.
+    // Open or close the device to begin/end rendering.
+    // Get the rendering chain to provide programs to render.
     class Device {
     private:
         static uint64_t idCounter;
         static constexpr uint32_t cDefaultBufferSize = 1024;
         static constexpr uint32_t cDefaultSampleRate = 44'100;
         static constexpr uint32_t cDefaultBitsPerSample = 8;
+        static constexpr uint32_t cDefaultBytesPerFrame = 1;
         static const std::chrono::milliseconds cDefaultLatency;
 
         std::wstring mName;
@@ -21,6 +26,7 @@ namespace speakerService {
         uint32_t mBufferSize;
         uint32_t mSampleRate;
         uint32_t mBitsPerSample;
+        uint32_t mBytesPerFrame;
         unsigned mNumChannels;
         IMMDevice* mWinDevice;
         IAudioRenderClient *mRenderClient;
@@ -29,19 +35,24 @@ namespace speakerService {
         std::chrono::milliseconds mLatency;
 
         bool mOpened;
-        objectModel::RenderingChain mRenderingChain;
+        std::unique_ptr<objectModel::RenderingChain> mRenderingChain;
 
         std::thread mRenderingThread;
         std::atomic_bool mCloseRequested;
         std::atomic_bool mRenderThreadClosed;
         void render() noexcept;
-        inline void floatToWinBuf( float** FloatBuf, BYTE* WinBuf) const noexcept;
+        inline void floatToWinBuf( float** FloatBuf, BYTE* WinBuf, size_t NumFrames) const noexcept;
+
+        
     public:
         Device() noexcept;
-        Device(Device&& Other) noexcept;
-        Device(const Device& Other) = delete; // It is wise to not copy winDevice
-
         Device(IMMDevice *pDevice) noexcept;
+
+        Device( Device& Other) noexcept;
+        Device& operator=(Device Other) noexcept;
+        Device(Device&& Other) noexcept;
+
+        friend void swap(Device& A, Device& B) noexcept;
 
         ~Device();
 
@@ -64,6 +75,11 @@ namespace speakerService {
                 "Cannot get sample rate of device until it is opened");
             return mSampleRate;
         }
+        const uint32_t getBitDepth() const noexcept {
+            assert(mOpened &&
+                "Cannot get bit depth of device until it is opened");
+            return mBitsPerSample;
+        }
         const unsigned getNumChannels() const noexcept {
             assert(mOpened &&
                 "Cannot get number of channels of a device until it is opened");
@@ -76,14 +92,9 @@ namespace speakerService {
             mLatency = latency;
         }
 
-        objectModel::RenderingChain& getChain() noexcept {
-            return mRenderingChain;
-        }
+        objectModel::RenderingChain& getChain() noexcept;
 
         void open();
         void close();
-        //void Render( const AudioBuffer& Buf);
-
-        //void PlayTestTone(const std::chrono::nanoseconds Duration);
     };
 }

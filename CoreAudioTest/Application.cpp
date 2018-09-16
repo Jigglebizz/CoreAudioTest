@@ -1,10 +1,9 @@
 #include <stdafx.h>
 #include "Application.h"
 
-#include <chrono>
-#include <iostream>
-
 #include "services/SpeakerService.h"
+#include "objectModel/RenderingChain.h"
+#include "plugins/Sine.h"
 
 using namespace std::chrono_literals;
 
@@ -20,6 +19,8 @@ Application::Run() {
         Loop();
         std::this_thread::sleep_for(1ms);
     }
+
+     mDevice.close();
 }
 
 void
@@ -31,27 +32,31 @@ Application::Initialize() {
         std::wcout << dev.getUid() << " ... " << dev.getName() << std::endl;
     }
 
-    auto defaultDevice = mContext.GetService<SpeakerService>()->GetDefaultDevice();
+    mDevice = mContext.GetService<SpeakerService>()->GetDefaultDevice();
     std::wcout << std::endl << "Default device is: " 
-               << defaultDevice.getUid() << " ... " 
-               << defaultDevice.getName() << std::endl;
+               << mDevice.getUid() << " ... " 
+               << mDevice.getName() << std::endl;
 
-    defaultDevice.setLatency(1ms);
+    mDevice.setLatency(1ms);
 
-    defaultDevice.open();
+    plugins::Sine* sineGen = new plugins::Sine();
 
-    std::wcout << "Sample rate: " << defaultDevice.getSampleRate() << std::endl;
-    std::wcout << "Buffer size: " << defaultDevice.getBufferSize() << std::endl;
-    if (defaultDevice.getNumChannels() == 1)
+    auto& chain = mDevice.getChain();
+    chain.insert(0, sineGen);
+
+    mDevice.open();
+
+    std::wcout << "Sample rate: " << mDevice.getSampleRate() << std::endl;
+    std::wcout << "Bit depth: " << mDevice.getBitDepth() << std::endl;
+    std::wcout << "Buffer size: " << mDevice.getBufferSize() << std::endl;
+    if (mDevice.getNumChannels() == 1)
         std::wcout << "Mono" << std::endl;
-    else if (defaultDevice.getNumChannels() == 2)
+    else if (mDevice.getNumChannels() == 2)
         std::wcout << "Stereo" << std::endl;
 
     std::wcout << "Buffer latency: " << 
-                  1000.0 * (float)defaultDevice.getBufferSize() / 
-                  (float)defaultDevice.getSampleRate() << "ms" << std::endl;
-
-    defaultDevice.close();
+                  1000.0 * (float)mDevice.getBufferSize() / 
+                  (float)mDevice.getSampleRate() << "ms" << std::endl;
 }
 
 void

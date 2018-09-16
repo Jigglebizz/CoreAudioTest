@@ -12,4 +12,6 @@ struct WinDrivers {
 
     static const unsigned REFTIMES_PER_SEC;
     static const unsigned REFTIMES_PER_MS;
+
+    static std::string audioClientErrorString( HRESULT Hr);
 };

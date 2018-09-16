@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include "Device.h"
 
+#include "objectModel/RenderingChain.h"
+
 using namespace speakerService;
 using namespace std::chrono_literals;
 
@@ -9,53 +11,71 @@ const std::chrono::milliseconds Device::cDefaultLatency = 3ms;
 
 Device::Device() noexcept
     : mName(L"Unknown"),
-      mUid(L""),
-      mWinDevice(NULL),
-      mBufferSize( cDefaultBufferSize), 
-      mSampleRate( cDefaultSampleRate),
-      mBitsPerSample( cDefaultBitsPerSample),
-      mNumChannels( 1),
-      mLatency( cDefaultLatency),
-      mRenderClient( NULL),
-      mAudioClient( NULL),
-      mOpened(false)
-{}
-
-
-Device::Device( Device&& Other) noexcept :
-    mName( Other.mName), 
-    mUid( Other.mUid),
-    mAppId( Other.mAppId),
-    mWinDevice( Other.mWinDevice),
-    mBufferSize( Other.mBufferSize),
-    mSampleRate( Other.mSampleRate),
-    mBitsPerSample( Other.mBitsPerSample),
-    mNumChannels( Other.mNumChannels),
-    mLatency( Other.mLatency),
-    mOpened( Other.mOpened),
-    mRenderClient( Other.mRenderClient),
-    mAudioClient( Other.mAudioClient)
-{
-    Other.mWinDevice = NULL;
-    Other.mRenderClient = NULL;
-    Other.mAudioClient = NULL;
-    Other.mName = L"Unknown";
-    Other.mAppId = std::numeric_limits<uint64_t>::max();
-    Other.mUid = L"";
-    Other.mOpened = false;
-}
-
-Device::Device(IMMDevice *pDevice) noexcept
-  : mName(L"Unknown"), 
+    mUid(L""),
     mWinDevice(NULL),
-    mRenderClient(NULL),
-    mAudioClient(NULL),
-    mUid( L""),
     mBufferSize(cDefaultBufferSize),
     mSampleRate(cDefaultSampleRate),
     mBitsPerSample(cDefaultBitsPerSample),
+    mBytesPerFrame(cDefaultBytesPerFrame),
+    mNumChannels(1),
     mLatency(cDefaultLatency),
-    mOpened( false)
+    mRenderClient(NULL),
+    mAudioClient(NULL),
+    mOpened(false),
+    mRenderingChain(std::make_unique<objectModel::RenderingChain>())
+{}
+
+
+Device::Device(Device& Other) noexcept :
+    Device()
+{
+    swap(*this, Other);
+}
+
+Device&
+Device::operator=(Device Other) noexcept {
+    swap(*this, Other);
+    return *this;
+}
+
+Device::Device( Device&& Other) noexcept :
+    Device()
+{
+    swap(*this, Other);
+}
+
+void speakerService::swap(Device & A, Device & B) noexcept
+{
+    using std::swap;
+    swap(A.mName, B.mName);
+    swap(A.mUid, B.mUid);
+    swap(A.mAppId, B.mAppId);
+    swap(A.mBufferSize, B.mBufferSize);
+    swap(A.mSampleRate, B.mSampleRate);
+    swap(A.mBitsPerSample, B.mBitsPerSample);
+    swap(A.mBytesPerFrame, B.mBytesPerFrame);
+    swap(A.mNumChannels, B.mNumChannels);
+    swap(A.mWinDevice, B.mWinDevice);
+    swap(A.mRenderClient, B.mRenderClient);
+    swap(A.mAudioClient, B.mAudioClient);
+    swap(A.mLatency, B.mLatency);
+    swap(A.mOpened, B.mOpened);
+    swap(A.mRenderingChain, B.mRenderingChain);
+    swap(A.mRenderingThread, B.mRenderingThread);
+    B.mCloseRequested 
+        = A.mCloseRequested.exchange(B.mCloseRequested);
+    B.mRenderThreadClosed 
+        = A.mRenderThreadClosed.exchange(B.mRenderThreadClosed);
+}
+
+
+objectModel::RenderingChain& 
+Device::getChain() noexcept {
+    return *mRenderingChain;
+}
+
+Device::Device(IMMDevice *pDevice) noexcept
+  : Device()
 {
     HRESULT hr = S_OK;
     LPWSTR pwszID = NULL;
@@ -139,6 +159,7 @@ void Device::open() {
         mSampleRate = pwfx->nSamplesPerSec;
         mBitsPerSample = pwfx->wBitsPerSample;
         mNumChannels = pwfx->nChannels;
+        mBytesPerFrame = pwfx->nBlockAlign;
 
         hr = mAudioClient->Initialize(
             AUDCLNT_SHAREMODE_SHARED,
@@ -197,17 +218,20 @@ void
 Device::render() noexcept {
     assert(mOpened && "Device must be opened first");
     BYTE* pBuf;
-    float** fBuf = (float**)malloc( mNumChannels * sizeof(float*));
+    float** fBuf = new float*[mNumChannels]();
     for (unsigned i = 0; i < mNumChannels; ++i) {
-        fBuf[i] = (float*)malloc(mBufferSize * sizeof(float));
+        fBuf[i] = new float[mBufferSize]();
     }
 
     mRenderThreadClosed = false;
 
     HRESULT hr;
     REFERENCE_TIME hnsActualDuration = 
-        (double)WinDrivers::REFTIMES_PER_SEC *
-        mBufferSize / mSampleRate;
+        static_cast<REFERENCE_TIME>(
+            static_cast<double>(WinDrivers::REFTIMES_PER_SEC) *
+            static_cast<double>(mBufferSize) / 
+            static_cast<double>(mSampleRate)
+        );
     DWORD flags = 0;
 
     UINT32 numFramesAvailable;
@@ -226,22 +250,30 @@ Device::render() noexcept {
 
             hr = mAudioClient->GetCurrentPadding(&numFramesPadding);
             if FAILED(hr)
-                throw std::runtime_error("Error getting padding");
+                throw std::runtime_error("Error getting padding. Error#" + std::to_string(hr));
 
             numFramesAvailable = mBufferSize - numFramesPadding;
+            if (numFramesAvailable < 1) {
+                continue;
+            }
 
-            hr = mRenderClient->GetBuffer(mBufferSize, &pBuf);
+            hr = mRenderClient->GetBuffer(numFramesAvailable, &pBuf);
             if FAILED(hr)
-                throw std::runtime_error("Error getting render buffer");
+                throw std::runtime_error(
+                    "Error getting render buffer: " + 
+                    WinDrivers::audioClientErrorString(hr)
+                );
 
-            mRenderingChain.render(fBuf, mNumChannels, numFramesAvailable);
-            floatToWinBuf(fBuf, pBuf);
+            mRenderingChain->render(fBuf, mNumChannels, numFramesAvailable, *this);
+            floatToWinBuf(fBuf, pBuf, numFramesAvailable);
 
-            hr = mRenderClient->ReleaseBuffer(mBufferSize, flags);
+            hr = mRenderClient->ReleaseBuffer(numFramesAvailable, flags);
             if (FAILED(hr))
-                throw std::runtime_error("Error releasing render buffer");
+                throw std::runtime_error("Error releasing render buffer: " + 
+                    WinDrivers::audioClientErrorString( hr));
         }
-        catch (const std::runtime_error&) {
+        catch (const std::runtime_error& e) {
+            std::wcout << e.what() << std::endl;
             close();
         }
     }
@@ -252,6 +284,18 @@ Device::render() noexcept {
 #pragma endregion
 
 void
-Device::floatToWinBuf( float** FloatBuf, BYTE* WinBuf) const noexcept {
+Device::floatToWinBuf( float** FloatBuf, BYTE* WinBuf, size_t NumFrames) const noexcept {
+    // From https://docs.microsoft.com/en-us/windows/desktop/api/Audioclient/nn-audioclient-iaudiorenderclient
+    // The size in bytes of an audio frame equals the number of channels in 
+    // the stream multiplied by the sample size per channel. For example, 
+    // the frame size is four bytes for a stereo (2-channel) stream with 
+    // 16-bit samples. A packet always contains an integral number of audio 
+    // frames.
+    double halfMax = static_cast<double>(std::numeric_limits<uint32_t>::max() / 2);
 
+    for (unsigned f = 0; f < NumFrames; ++f) {
+        for (unsigned n = 0; n < mNumChannels; ++n) {
+            (uint32_t&)WinBuf[f * mBytesPerFrame] = static_cast<uint32_t>(FloatBuf[0][f] * halfMax + halfMax);
+        }
+    }
 }
