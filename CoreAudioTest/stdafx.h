@@ -17,3 +17,9 @@
 #include <atomic>
 #include <list>
 #include <iostream>
+
+#ifdef _UNIT_TEST
+#define testable_public public:
+#else
+#define testable_public
+#endif

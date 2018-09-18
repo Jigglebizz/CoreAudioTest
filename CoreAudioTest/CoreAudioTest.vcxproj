@@ -122,6 +122,7 @@
     <ClCompile Include="core\AudioBuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objectModel\RenderingChain.cpp" />
+    <ClCompile Include="plugins\DigitalNoise.cpp" />
     <ClCompile Include="plugins\Sine.cpp" />
     <ClCompile Include="services\SpeakerService.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -152,6 +153,7 @@
     <ClInclude Include="core\Math.h" />
     <ClInclude Include="objectModel\Renderable.h" />
     <ClInclude Include="objectModel\RenderingChain.h" />
+    <ClInclude Include="plugins\DigitalNoise.h" />
     <ClInclude Include="plugins\Sine.h" />
     <ClInclude Include="services\AbstractService.h" />
     <ClInclude Include="services\SpeakerService.h" />

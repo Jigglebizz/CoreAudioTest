@@ -3,7 +3,7 @@
 
 #include "services/SpeakerService.h"
 #include "objectModel/RenderingChain.h"
-#include "plugins/Sine.h"
+#include "plugins/DigitalNoise.h"
 
 using namespace std::chrono_literals;
 
@@ -39,10 +39,10 @@ Application::Initialize() {
 
     mDevice.setLatency(1ms);
 
-    plugins::Sine* sineGen = new plugins::Sine();
+    plugins::DigitalNoise* noiseGen = new plugins::DigitalNoise();
 
     auto& chain = mDevice.getChain();
-    chain.insert(0, sineGen);
+    chain.insert(0, noiseGen);
 
     mDevice.open();
 

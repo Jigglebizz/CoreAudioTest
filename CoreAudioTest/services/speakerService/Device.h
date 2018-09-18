@@ -13,6 +13,7 @@ namespace speakerService {
     // Get the rendering chain to provide programs to render.
     class Device {
     private:
+    testable_public
         static uint64_t idCounter;
         static constexpr uint32_t cDefaultBufferSize = 1024;
         static constexpr uint32_t cDefaultSampleRate = 44'100;
@@ -42,8 +43,6 @@ namespace speakerService {
         std::atomic_bool mRenderThreadClosed;
         void render() noexcept;
         inline void floatToWinBuf( float** FloatBuf, BYTE* WinBuf, size_t NumFrames) const noexcept;
-
-        
     public:
         Device() noexcept;
         Device(IMMDevice *pDevice) noexcept;
