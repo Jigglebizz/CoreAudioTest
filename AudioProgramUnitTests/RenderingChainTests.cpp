@@ -1,10 +1,10 @@
-#include <stdafx.h>
+#include "stdafx.h"
 #include <winsdkver.h>
 #include "CppUnitTest.h"
 
-#include <objectModel/RenderingChain.cpp>
-#include <objectModel/Renderable.h>
+#include <objectModel/RenderingChain.h>
 
+using namespace objectModel;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace AudioProgramUnitTests

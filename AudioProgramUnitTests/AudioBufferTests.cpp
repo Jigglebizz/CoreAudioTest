@@ -3,7 +3,7 @@
 #include <winsdkver.h>
 #include "CppUnitTest.h"
 
-#include <core/AudioBuffer.cpp>
+#include <core/AudioBuffer.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

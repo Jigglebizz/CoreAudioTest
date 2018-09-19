@@ -25,7 +25,7 @@ namespace AudioProgramUnitTests
                 floatBuf[0][i] = 1.0f;
             }
             
-            d.floatToWinBuf( floatBuf, winBuf, 128);
+            //d.floatToWinBuf( floatBuf, winBuf, 128);
 
             for (unsigned i = 0; i < 128; ++i) {
                 Assert::IsTrue(
