@@ -9,10 +9,13 @@ namespace objectModel {
     class Renderable {
     public:
       /**
-       * The Buffer is what gets rendered to the device.
-       * A Renderable at the beginning of a chain will have a
-       * blank buffer. A Renderable in the middle of a chain will
-       * recieve the buffer from the previous Renderable in the chain.
+       * The Buffer is passed down the chain of renderables,
+       * and is ultimately what gets rendered to the device.
+       *
+       * A Renderable at the beginning of a chain can assume the
+       * buffer is filled with garbage. Any other Renderable 
+       * will operate on the buffer after the previous 
+       * Renderable has finished operating on it.
        */
        virtual void render( float** Buffer, 
                             size_t NumChannels, 

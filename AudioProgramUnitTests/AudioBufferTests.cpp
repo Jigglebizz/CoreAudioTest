@@ -13,22 +13,48 @@ namespace AudioProgramUnitTests
 	{
 	public:
 		TEST_METHOD(InitializeEmpty) {
-            AudioBuffer buf(256);
-            BYTE* outputBuf = (BYTE*)malloc(256);
+            constexpr size_t frames = 256;
+            constexpr BYTE halfByteMax = std::numeric_limits<BYTE>::max() / 2;
+
+            // GIVEN:......................................................
+            // An AudioBuffer object, initialized to all zeros
+            AudioBuffer buf(frames);
+            // And a Windows PWM buffer of the same size
+            BYTE* outputBuf = new BYTE[frames]();
+
+            // WHEN:.......................................................
+            // We ask the AudioBuffer to convert its data to PWM
             buf.getBuffer<BYTE>(&outputBuf);
 
-            for (size_t i = 0; i < 256; ++i) {
-                Assert::AreEqual(outputBuf[i], static_cast<BYTE>(127));
+            // THEN:.......................................................
+            // The PWM Buffer is filled with samples
+            // at the speaker diaphragm's 0-deflection point
+            for (size_t i = 0; i < frames; ++i) {
+                Assert::AreEqual(outputBuf[i], static_cast<BYTE>(halfByteMax));
             }
+
+            //cleanup:
             free(outputBuf);
 		}
         TEST_METHOD(ArbitraryPrecision) {
-            AudioBuffer buf(32);
-            uint32_t* outputBuf = (uint32_t*)malloc(32 * sizeof(uint32_t));
+            constexpr size_t frames = 32;
+            constexpr uint32_t halfUint32Max = std::numeric_limits<uint32_t>::max() / 2;
+
+            // GIVEN:........................................................
+            // An audio buffer object, initialized to all zeros
+            AudioBuffer buf(frames);
+            // And a uint32_t PWM buffer of the same size
+            uint32_t* outputBuf = (uint32_t*)malloc(frames * sizeof(uint32_t));
+
+            // WHEN:.........................................................
+            // The audio buffer poops out PWM
             buf.getBuffer<uint32_t>(&outputBuf);
 
-            for (size_t i = 0; i < 32; ++i) {
-                Assert::AreEqual(outputBuf[i], static_cast<uint32_t>(2147483647));
+            // THEN:.........................................................
+            // The PWM Buffer is filled with samples
+            // at the speaker diaphragm's 0-deflection point
+            for (size_t i = 0; i < frames; ++i) {
+                Assert::AreEqual(outputBuf[i], static_cast<uint32_t>(halfUint32Max));
             }
         }
 

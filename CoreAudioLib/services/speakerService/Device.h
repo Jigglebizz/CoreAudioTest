@@ -10,10 +10,9 @@ namespace objectModel {
 namespace speakerService {
     // The device renders audio to an endpoint.
     // Open or close the device to begin/end rendering.
-    // Get the rendering chain to provide programs to render.
+    // Get the rendering chain using getChain() to provide programs to render.
     class Device {
     private:
-    testable_public
         static uint64_t idCounter;
         static constexpr uint32_t cDefaultBufferSize = 1024;
         static constexpr uint32_t cDefaultSampleRate = 44'100;
