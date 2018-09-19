@@ -1,3 +1,4 @@
+#include <stdafx.h>
 #include <winsdkver.h>
 #include "CppUnitTest.h"
 

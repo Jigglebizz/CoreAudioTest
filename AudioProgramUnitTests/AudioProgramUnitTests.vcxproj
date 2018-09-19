@@ -77,83 +77,123 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildBeforeTargets>ClCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)CoreAudioTest;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CoreAudioLib;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_UNIT_TEST;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
-      <PrecompiledHeaderFile>stdafxtest.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)$(Platform)\$(Configuration)\CoreAudioLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" "$(IntDir)vc$(PlatformToolsetVersion).pdb"
+if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.idb" "$(IntDir)vc$(PlatformToolsetVersion).idb"</Command>
+      <Outputs>$(IntDir)vc$(PlatformToolsetVersion).pdb</Outputs>
+      <Inputs>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)CoreAudioTest;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
-      <PrecompiledHeaderFile>stdafxtest.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)$(Platform)\$(Configuration)\CoreAudioLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" "$(IntDir)vc$(PlatformToolsetVersion).pdb"
+if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.idb" "$(IntDir)vc$(PlatformToolsetVersion).idb"</Command>
+      <Outputs>$(IntDir)vc$(PlatformToolsetVersion).pdb</Outputs>
+      <Inputs>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)CoreAudioTest;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
-      <PrecompiledHeaderFile>stdafxtest.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)$(Platform)\$(Configuration)\CoreAudioLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" "$(IntDir)vc$(PlatformToolsetVersion).pdb"
+if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.idb" "$(IntDir)vc$(PlatformToolsetVersion).idb"</Command>
+      <Outputs>$(IntDir)vc$(PlatformToolsetVersion).pdb</Outputs>
+      <Inputs>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)CoreAudioTest;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
-      <PrecompiledHeaderFile>stdafxtest.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)$(Platform)\$(Configuration)\CoreAudioLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" "$(IntDir)vc$(PlatformToolsetVersion).pdb"
+if EXIST "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb" copy /Y "$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.idb" "$(IntDir)vc$(PlatformToolsetVersion).idb"</Command>
+      <Outputs>$(IntDir)vc$(PlatformToolsetVersion).pdb</Outputs>
+      <Inputs>$(SolutionDir)CoreAudioLib\$(IntDir)CoreAudioLib.pdb</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AudioBufferTests.cpp">
@@ -168,11 +208,6 @@
     </ClCompile>
     <ClCompile Include="RenderingChainTests.cpp" />
     <ClCompile Include="SpeakerDeviceTests.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CoreAudioTest\CoreAudioTest.vcxproj">
-      <Project>{59ef4bd3-3927-4d43-9dc5-b7e4c2d353ae}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,9 +1,10 @@
+#include <stdafx.h>
+
 #include <winsdkver.h>
 #include "CppUnitTest.h"
-#define NOMINMAX
+
 #include <Windows.h>
 
-#include "stdafx.h"
 #include "services/speakerService/Device.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
