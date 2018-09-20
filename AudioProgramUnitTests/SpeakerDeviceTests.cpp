@@ -23,7 +23,7 @@ namespace AudioProgramUnitTests
             speakerService::Device d;
             d.mBytesPerFrame = 4;
 
-            // A buffer of uint32_t's, expressed as BYTEs
+            // A buffer of uint32_t's
             uint32_t* winBuf = new uint32_t[ frames ]();
 
             //v. an array of an array of ~~floats
@@ -39,15 +39,13 @@ namespace AudioProgramUnitTests
             // WHEN:.................................................
             // The float arrays are converted to Microsoft's
             // preferred PWM format
-            d.floatToWinBuf( floatBuf, reinterpret_cast<BYTE*>(winBuf), 128);
+            d.floatToWinBuf( floatBuf, reinterpret_cast<BYTE*>(winBuf), frames);
 
             // THEN:.................................................
-            // The buffer of BYTE's is filled with all max
+            // The buffer of uint32_t's is filled with all max
             // PWM values
             uint32_t maxVal = std::numeric_limits<uint32_t>::max();
             for (unsigned i = 0; i < frames; ++i) {
-                std::wcout << winBuf[i];
-                
                 Assert::IsTrue( winBuf[i] == std::numeric_limits<uint32_t>::max() - 1 );
             }
         }
