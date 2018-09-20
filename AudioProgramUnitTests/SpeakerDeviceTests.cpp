@@ -19,9 +19,9 @@ namespace AudioProgramUnitTests
             constexpr size_t channels = 1;
 
             // GIVEN:...............................................
-            // a device
+            // a device with a frame size of a single uint32_t value
             speakerService::Device d;
-            d.mBytesPerFrame = 4;
+            d.mBytesPerFrame = sizeof(uint32_t);
 
             // A buffer of uint32_t's
             uint32_t* winBuf = new uint32_t[ frames ]();

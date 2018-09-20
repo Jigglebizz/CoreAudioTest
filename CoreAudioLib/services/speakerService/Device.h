@@ -91,7 +91,7 @@ namespace speakerService {
         const std::chrono::milliseconds getLatency() const noexcept {
             return mLatency;
         }
-        void setLatency( const std::chrono::milliseconds& latency) noexcept {
+        void requestLatency( const std::chrono::milliseconds& latency) noexcept {
             mLatency = latency;
         }
 

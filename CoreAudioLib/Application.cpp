@@ -37,7 +37,7 @@ Application::Initialize() {
                << mDevice.getUid() << " ... " 
                << mDevice.getName() << std::endl;
 
-    mDevice.setLatency(1ms);
+    mDevice.requestLatency(1ms);
 
     plugins::DigitalNoise* noiseGen = new plugins::DigitalNoise();
 
@@ -55,8 +55,8 @@ Application::Initialize() {
         std::wcout << "Stereo" << std::endl;
 
     std::wcout << "Buffer latency: " << 
-                  1000.0 * (float)mDevice.getBufferSize() / 
-                  (float)mDevice.getSampleRate() << "ms" << std::endl;
+                  1000.0 * static_cast<float>(mDevice.getBufferSize()) / 
+                  static_cast<float>(mDevice.getSampleRate()) << "ms" << std::endl;
 }
 
 void

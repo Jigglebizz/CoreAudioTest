@@ -9,7 +9,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace AudioProgramUnitTests
 {		
-	TEST_CLASS(AudioBufferTests)
+    TEST_CLASS(AudioBufferTests)
 	{
 	public:
 		TEST_METHOD(InitializeEmpty) {
@@ -35,7 +35,7 @@ namespace AudioProgramUnitTests
 
             //cleanup:
             free(outputBuf);
-		}
+        }
         TEST_METHOD(ArbitraryPrecision) {
             constexpr size_t frames = 32;
             constexpr uint32_t halfUint32Max = std::numeric_limits<uint32_t>::max() / 2;
@@ -60,6 +60,5 @@ namespace AudioProgramUnitTests
             // cleanup
             free(outputBuf);
         }
-
 	};
 }
