@@ -10,7 +10,7 @@ Built and tested in Visual Studio Community 2017
 This is intended to be a sample of my coding ability. It is an incomplete project, 
 and development is ongoing. However, because of this intention, I have included 
 verbose comments to not only explain why I've done certain things, but also express 
-my opinions on various idioms in the C++ language as well. I do my best to 
+my familiarity with various idioms in the C++ language as well. I do my best to 
 highlight when I'm using a particular technique or pattern to demonstrate my 
 experience. I may not otherwise employ such verbose comments - I believe that CODE 
 should tell you what it does, if it is written well. Comments can become stale, 
