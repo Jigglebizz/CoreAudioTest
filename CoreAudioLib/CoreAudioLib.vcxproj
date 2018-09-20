@@ -37,7 +37,6 @@
     <ClInclude Include="AppObject.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="core\AudioBuffer.h" />
-    <ClInclude Include="core\Globals.h" />
     <ClInclude Include="core\Math.h" />
     <ClInclude Include="core\WinDrivers.h" />
     <ClInclude Include="objectModel\Renderable.h" />
