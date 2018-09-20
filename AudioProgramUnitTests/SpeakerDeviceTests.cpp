@@ -16,17 +16,18 @@ namespace AudioProgramUnitTests
     public:
         TEST_METHOD(ConvertToWinBuf) {
             constexpr size_t frames = 128; // [1.]
+            constexpr size_t channels = 1;
 
             // GIVEN:...............................................
             // a device
             speakerService::Device d;
+            d.mBytesPerFrame = 4;
 
             // A buffer of uint32_t's, expressed as BYTEs
-            BYTE* winBuf = new BYTE[ frames * sizeof(uint32_t)]();
+            uint32_t* winBuf = new uint32_t[ frames ]();
 
             //v. an array of an array of ~~floats
-            //    (channels)  (frames)   (samples)
-            float** floatBuf = new float*[1]();
+            float** floatBuf = new float*[channels]();
             floatBuf[0] = new float[frames]();
             //^.
 
@@ -38,16 +39,16 @@ namespace AudioProgramUnitTests
             // WHEN:.................................................
             // The float arrays are converted to Microsoft's
             // preferred PWM format
-            //d.floatToWinBuf( floatBuf, winBuf, 128);
+            d.floatToWinBuf( floatBuf, reinterpret_cast<BYTE*>(winBuf), 128);
 
             // THEN:.................................................
             // The buffer of BYTE's is filled with all max
             // PWM values
-            for (unsigned i = 0; i < 128; ++i) {
-                Assert::IsTrue(
-                    (uint32_t&)winBuf[i * sizeof(uint32_t)] == 
-                    std::numeric_limits<uint32_t>::max()
-                );
+            uint32_t maxVal = std::numeric_limits<uint32_t>::max();
+            for (unsigned i = 0; i < frames; ++i) {
+                std::wcout << winBuf[i];
+                
+                Assert::IsTrue( winBuf[i] == std::numeric_limits<uint32_t>::max() - 1 );
             }
         }
     };

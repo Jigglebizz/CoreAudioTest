@@ -7,11 +7,16 @@ namespace objectModel {
     class RenderingChain;
 }
 
+namespace AudioProgramUnitTests {
+    class SpeakerDeviceTests;
+}
+
 namespace speakerService {
     // The device renders audio to an endpoint.
     // Open or close the device to begin/end rendering.
     // Get the rendering chain using getChain() to provide programs to render.
     class Device {
+        friend class AudioProgramUnitTests::SpeakerDeviceTests;
     private:
         static uint64_t idCounter;
         static constexpr uint32_t cDefaultBufferSize = 1024;

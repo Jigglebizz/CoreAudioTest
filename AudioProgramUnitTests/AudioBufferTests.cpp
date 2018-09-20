@@ -44,7 +44,7 @@ namespace AudioProgramUnitTests
             // An audio buffer object, initialized to all zeros
             AudioBuffer buf(frames);
             // And a uint32_t PWM buffer of the same size
-            uint32_t* outputBuf = (uint32_t*)malloc(frames * sizeof(uint32_t));
+            uint32_t* outputBuf = new uint32_t[frames]();
 
             // WHEN:.........................................................
             // The audio buffer poops out PWM
@@ -56,6 +56,9 @@ namespace AudioProgramUnitTests
             for (size_t i = 0; i < frames; ++i) {
                 Assert::AreEqual(outputBuf[i], static_cast<uint32_t>(halfUint32Max));
             }
+
+            // cleanup
+            free(outputBuf);
         }
 
 	};

@@ -135,6 +135,7 @@ Device::~Device() {
 #pragma region
 // This region is mostly boilerplate from
 // https://docs.microsoft.com/en-us/windows/desktop/CoreAudio/rendering-a-stream
+// however, the render thread is managed here as well
 
 void Device::open() {
     assert( !mOpened && "Device already opened");
@@ -286,11 +287,11 @@ Device::render() noexcept {
 void
 Device::floatToWinBuf( float** FloatBuf, BYTE* WinBuf, size_t NumFrames) const noexcept {
     // From https://docs.microsoft.com/en-us/windows/desktop/api/Audioclient/nn-audioclient-iaudiorenderclient
-    // The size in bytes of an audio frame equals the number of channels in 
+    // "The size in bytes of an audio frame equals the number of channels in 
     // the stream multiplied by the sample size per channel. For example, 
     // the frame size is four bytes for a stereo (2-channel) stream with 
     // 16-bit samples. A packet always contains an integral number of audio 
-    // frames.
+    // frames."
     double halfMax = static_cast<double>(std::numeric_limits<uint32_t>::max() / 2);
 
     for (unsigned f = 0; f < NumFrames; ++f) {

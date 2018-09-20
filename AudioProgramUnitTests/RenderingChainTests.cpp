@@ -62,7 +62,7 @@ namespace AudioProgramUnitTests
             Assert::IsTrue(dynamic_cast<RenderAccum*>(chain.get(0))->id == ra0->id);
 
             // AND WHEN:................................................................
-            // We insert the second Renderable
+            // We insert the second Renderable after the first
             chain.insert(1, ra1);
 
             // THEN:.....................................................................
